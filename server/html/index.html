@@ -63,7 +63,7 @@
         }
 
         function initWs(userName) {
-            var socket = new WebSocket('ws://localhost:5001');
+            var socket = new WebSocket('ws://mos.levonlin.info/websocket');
 
             socket.addEventListener('open', function(e) {
                 var submitBtn = document.querySelector('.J-submit-btn');
