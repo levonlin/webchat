@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+    <title>一起聊</title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <style>
+        .chat-container {
+            padding: 5px 5px;
+        }
+
+        .chat-window {
+            height: 350px;
+            padding: 5px;
+            border: solid 1px;
+            border-radius: 5px;
+            overflow: scroll;
+        }
+
+        .msg {
+            word-break: break-all;
+        }
+
+        .msg-user {
+            color: #00f;
+        }
+
+        .msg-edit {
+            margin-top: 10px;
+        }
+
+        .msg-edit > .msg-input {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="container">
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2 chat-sidbar"></div>
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 chat-container">
+            <h4>开始聊天吧~</h4>
+            <div class="chat-window J-chat-window"></div>
+            <div class="msg-edit">
+                <input type="text" class="form-control msg-input J-msg-input">
+                <button type="button" class="btn btn-primary J-submit-btn pull-right">发送</button>
+            </div>        
+        </div>
+    </div>
+
+    <script>
+        function checkInput(input) {
+            if (input.trim() === '') {
+                return {
+                    isValid: false,
+                    checkInfo: '输入不能为空！'
+                };
+            } else {
+                return {
+                    isValid: true
+                };
+            }
+        }
+
+        function initWs(userName) {
+            var socket = new WebSocket('ws://localhost:5000');
+
+            socket.addEventListener('open', function(e) {
+                var submitBtn = document.querySelector('.J-submit-btn');
+                
+                socket.send(JSON.stringify({
+                    "type": "login",
+                    "user": userName
+                }));
+
+                submitBtn.addEventListener('click', function(e) {
+                    var msgElement = document.querySelector('.J-msg-input');
+                    var msg = msgElement.value;
+                    var checkResult = checkInput(msg);
+
+                    if (checkResult.isValid) {
+                        var data = {
+                            "type": "message",
+                            "user": userName,
+                            "msg": msg
+                        }
+                        socket.send(JSON.stringify(data));
+                    } else {
+                        alert(checkResult.checkInfo);
+                    }
+
+                    msgElement.value = '';
+                });            
+            });
+
+            socket.addEventListener('message', function(e) {
+                var chatWin = document.querySelector('.J-chat-window');
+                var data = JSON.parse(e.data);
+
+                if (data.type === 'welcome') {
+                    chatWin.innerHTML += '<p class="msg">' + data.msg + '</p>';
+                } else {
+                    chatWin.innerHTML += '<p class="msg"><span class="msg-user">' + data.user + '：</span>' + data.msg + '</p>';
+                }
+            });
+        }
+
+        function isValidUser(userName) {
+            if (userName.trim() === '') {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function init() {
+            var userName = prompt('请输入用户名：');
+            
+            if (userName === null) {
+                init();
+            } else if (!isValidUser(userName)) {
+                alert('无效的用户名，请再输一遍！');
+                init();
+            } else {
+                initWs(userName);
+            }
+        }
+
+        init();
+        // initWs('levon');
+    </script>
+</body>
+</html>
