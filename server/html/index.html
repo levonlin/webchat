@@ -63,7 +63,7 @@
         }
 
         function initWs(userName) {
-            var socket = new WebSocket('ws://localhost:5000');
+            var socket = new WebSocket('ws://localhost:5001');
 
             socket.addEventListener('open', function(e) {
                 var submitBtn = document.querySelector('.J-submit-btn');
