@@ -63,7 +63,7 @@
         }
 
         function initWs(userName) {
-            var socket = new WebSocket('ws://mos.levonlin.info/websocket');
+            var socket = new WebSocket('ws://103.37.167.184/websocket');
 
             socket.addEventListener('open', function(e) {
                 var submitBtn = document.querySelector('.J-submit-btn');
@@ -102,6 +102,12 @@
                 } else {
                     chatWin.innerHTML += '<p class="msg"><span class="msg-user">' + data.user + '：</span>' + data.msg + '</p>';
                 }
+            });
+
+            socket.addEventListener('close', function(e) {
+                var chatWin = document.querySelector('.J-chat-window');
+
+                chatWin.innerHTML += '<p class="msg">你已下线！请尝试刷新页面重新登录</p>';
             });
         }
 
